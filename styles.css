@@ -1,0 +1,496 @@
+/* Global Styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #141414; /* Deep dark background */
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease;
+}
+
+/* Header */
+header {
+  background: linear-gradient(90deg, #141414, #222222);
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  /* Using purple accent instead of red */
+  color: #8e44ad;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Search Container */
+.search-container {
+  position: relative;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+/* Category & Movie Cards */
+.movies {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 0;
+  gap: 10px;
+}
+
+.movies::-webkit-scrollbar {
+  display: none;
+}
+
+.movie {
+  flex: 0 0 45%;
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  margin: 0 5px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.movie:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .movie {
+    flex: 0 0 25%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .movie {
+    flex: 0 0 12.5%;
+  }
+}
+
+.movie img {
+  width: 100%;
+  border-radius: 8px;
+  transition: opacity 0.3s ease;
+}
+
+/* Scroll Container for Categories (with arrow buttons) */
+.scroll-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-btn {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.scroll-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Footer */
+footer {
+  background-color: #222222;
+  color: #ffffff;
+  padding: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Player Overlay */
+#playerOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.9);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.player-inner {
+  position: relative;
+  width: 80%;
+  max-width: 900px;
+  height: 60%;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Updated close button with purple theme */
+#closePlayerBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+}
+
+#closePlayerBtn:hover {
+  background-color: #a569bd;
+}
+
+/* Updated iframe rule */
+#playerIframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Episode Navigation Buttons */
+/* Moved from bottom to the vertical center sides of the iframe */
+#episodeNav {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+}
+
+#prevEpisodeBtn {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#prevEpisodeBtn:hover {
+  background-color: #555;
+}
+
+#nextEpisodeBtn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#nextEpisodeBtn:hover {
+  background-color: #555;
+}
+
+/* Recommended Titles Section */
+.recommended-titles-container {
+  width: 80%; 
+  max-width: 900px; 
+  margin-top: 20px; 
+  overflow-x: auto; 
+  display: flex; 
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.recommended-title-card {
+  flex: 0 0 auto;
+  width: 80px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.recommended-title-card:hover {
+  transform: scale(1.05);
+}
+
+.recommended-title-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.recommended-title-card p {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+/* Chat Container */
+#chat-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+#chatbox {
+  height: 200px;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #141414;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  scroll-behavior: smooth;
+}
+
+#chatbox::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chatbox::-webkit-scrollbar-thumb {
+  background-color: #8e44ad;
+  border-radius: 4px;
+}
+
+.message {
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 80%;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  animation: fadeIn 0.3s ease;
+}
+
+.message:nth-child(odd) {
+  background-color: #333;
+  align-self: flex-start;
+}
+
+.message:nth-child(even) {
+  background-color: #444;
+  align-self: flex-end;
+}
+
+.bot-message {
+  background-color: #555;
+  align-self: flex-start;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+/* Chat Input */
+#messageForm {
+  display: flex;
+  padding: 10px;
+  background-color: #222;
+  border-top: 1px solid #333;
+}
+
+#messageInput {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #333;
+  color: #fff;
+  outline: none;
+  transition: border 0.3s ease, background-color 0.3s ease;
+}
+
+#messageInput:focus {
+  border: 1px solid #8e44ad;
+  background-color: #444;
+}
+
+#messageForm button {
+  padding: 10px 15px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #8e44ad;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#messageForm button:hover {
+  background-color: #a569bd;
+}
+
+#messageForm button:active {
+  transform: scale(0.95);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Active Users */
+.active-users-container {
+  display: flex;
+  align-items: center;
+  color: #8e44ad;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  background-color: #28a745;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: flash 1s infinite;
+}
+
+@keyframes flash {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.5; }
+}
+
+/* Watchlist Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 11000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+  background-color: #222;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #333;
+  width: 80%;
+  max-width: 600px;
+  color: #fff;
+  border-radius: 8px;
+  position: relative;
+}
+
+.close-watchlist {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-watchlist:hover,
+.close-watchlist:focus {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Watchlist Items */
+.watchlist-item {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  cursor: pointer;
+  padding: 5px;
+  transition: background-color 0.2s;
+}
+
+.watchlist-item:hover {
+  background-color: #333;
+}
+
+.watchlist-poster {
+  width: 50px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.watchlist-item p {
+  margin: 0;
+  font-size: 1rem;
+  color: #fff;
+}
+
+/* NEW: Customized "Add to Watchlist" Button */
+/* Modern Sleek Watchlist Button */
+.watchlist-btn {
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(45deg, #8e44ad, #a569bd);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.watchlist-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.watchlist-btn:active {
+  transform: scale(0.98);
+}
+
+/* Style for the "Watchlist" button that opens the modal */
+#watchlistButton {
+  padding: 10px 20px;
+  background: linear-gradient(45deg, #8e44ad, #a569bd);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  margin: 10px;
+}
+
+#watchlistButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+#watchlistButton:active {
+  transform: scale(0.98);
+}

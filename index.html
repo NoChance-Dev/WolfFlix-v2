@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WOLFFLIX</title>
+  <!-- Google Fonts for a sleek look -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <meta name="referrer" content="origin" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="google-adsense-account" content="ca-pub-5206361799809277">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5206361799809277"
+     crossorigin="anonymous"></script>
+  
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <!-- Firebase Authentication -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq2EadQb6uUMNM__mJP1yFVRw2TOzZ4_8",
+      authDomain: "user-count-eeb62.firebaseapp.com",
+      projectId: "user-count-eeb62",
+      storageBucket: "user-count-eeb62.firebasestorage.app",
+      messagingSenderId: "703678960570",
+      appId: "1:703678960570:web:94674d61804f48dc880383",
+      measurementId: "G-QX7TN8ZYZL"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    // Initialize services
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+</head>
+<body>
+  <header>
+    <h1>WOLFFLIX</h1>
+    <!-- Buy Me a Coffee Button -->
+    <div style="text-align:center; margin: 20px 0;">
+      <a href="https://buymeacoffee.com/wolfflix" target="_blank">
+        <img 
+          src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" 
+          alt="Buy Me A Coffee" 
+          style="height: 30px !important; width: 120px !important;">
+      </a>
+    </div>
+
+    <!-- Watchlist Button (Added) -->
+    <button id="watchlistButton">Watchlist</button>
+
+    <!-- Active Users Display with Status Indicator -->
+    <div class="active-users-container">
+      <span class="status-indicator"></span>
+      Active Users: <span id="activeUsers">0</span>
+    </div>
+
+    <!-- Scripts to Handle Active Users -->
+    <script>
+      // Function to fetch and display active user count
+      function displayActiveUsers() {
+        const activeUsersElement = document.getElementById('activeUsers');
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60000); // 5 minutes
+
+        // Query activeUsers where lastActive >= fiveMinutesAgo
+        db.collection('activeUsers')
+          .where('lastActive', '>=', firebase.firestore.Timestamp.fromDate(fiveMinutesAgo))
+          .onSnapshot((snapshot) => {
+            const activeUserCount = snapshot.size;
+            activeUsersElement.innerText = activeUserCount;
+          }, (error) => {
+            console.error("Error fetching active users:", error);
+          });
+      }
+
+      // Call the function on page load
+      displayActiveUsers();
+    </script>
+  </header>
+  
+  <!-- An empty .search-container where the JS will inject the floating search bar/results -->
+  <div class="search-container"></div>
+
+  <!-- Chat Container -->
+  <div id="chat-container">
+    <div id="chatbox"></div>
+    <form id="messageForm">
+      <input id="messageInput" type="text" placeholder="Give me Movies with Jack Black..." required />
+      <button type="submit">Ask</button>
+    </form>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Container where categories (movies/shows) will be placed -->
+    <div id="movies"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 WOLFFLIX. We do not store any media on our servers.</p>
+    <p>For any DMCA Complaints please report to the video hosting provider for takedown.</p>
+  </footer>
+
+  <!-- Player Overlay (hidden by default) -->
+  <div id="playerOverlay">
+    <div class="player-inner">
+      <button id="closePlayerBtn">Close</button>
+      <iframe id="playerIframe" frameborder="0" allowfullscreen></iframe>
+      <div id="episodeNav">
+        <button id="prevEpisodeBtn">Previous Episode</button>
+        <button id="nextEpisodeBtn">Next Episode</button>
+      </div>
+    </div>
+    <div id="recommendedTitles" class="recommended-titles-container">
+      <!-- Recommended titles will be injected here dynamically -->
+    </div>
+  </div>
+
+  <!-- Watchlist Modal (Added) -->
+  <div id="watchlistModal" class="modal">
+    <div class="modal-content">
+      <span class="close-watchlist">&times;</span>
+      <h2>Your Watchlist</h2>
+      <ul id="watchlistItems">
+        <!-- Watchlist items will be injected here -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- Firebase Authentication Scripts -->
+  <script>
+    // Sign in anonymously
+    auth.signInAnonymously()
+      .then(() => {
+        console.log("Signed in anonymously");
+      })
+      .catch((error) => {
+        console.error("Anonymous sign-in failed:", error);
+      });
+  </script>
+  
+  <script>
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const userId = user.uid;
+        const userRef = db.collection('activeUsers').doc(userId);
+        
+        // Update lastActive timestamp function
+        const updateLastActive = () => {
+          userRef.set({
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true })
+          .then(() => {
+            console.log("Active status updated");
+          })
+          .catch((error) => {
+            console.error("Error updating active status:", error);
+          });
+        };
+        
+        updateLastActive();
+        const intervalId = setInterval(updateLastActive, 60000);
+        
+        window.addEventListener('beforeunload', () => {
+          clearInterval(intervalId);
+          userRef.delete().catch((error) => {
+            console.error("Error removing user from activeUsers:", error);
+          });
+        });
+      }
+    });
+  </script>
+  
+  <!-- Load your main script after all dependencies are loaded -->
+  <script src="script.js" defer></script>
+</body>
+</html>
