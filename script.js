@@ -870,75 +870,130 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  async function showTvSeasons(tvItem, rect, progress = 0) {
-    try {
-      const resp = await fetch(`https://api.themoviedb.org/3/tv/${tvItem.id}?api_key=${apiKey}`);
-      const tvData = await resp.json();
-      const seasons = tvData.seasons || [];
-      const tvShowName = tvData.name || 'Untitled';
-      const tvShowPosterPath = tvData.poster_path || '';
-      const seasonWindow = document.createElement('div');
-      seasonWindow.className = 'season-window';
-      seasonWindow.setAttribute('role', 'dialog');
-      seasonWindow.setAttribute('aria-modal', 'true');
-      seasonWindow.setAttribute('aria-labelledby', 'seasonWindowTitle');
-      seasonWindow.style.position = 'fixed';
-      seasonWindow.style.top = '50%';
-      seasonWindow.style.left = '50%';
-      seasonWindow.style.transform = 'translate(-50%, -50%)';
-      seasonWindow.style.width = '80%';
-      seasonWindow.style.maxHeight = '80vh';
-      seasonWindow.style.overflowY = 'auto';
-      seasonWindow.style.backgroundColor = '#2e2e2e';
-      seasonWindow.style.color = '#fff';
-      seasonWindow.style.padding = '20px';
-      seasonWindow.style.borderRadius = '8px';
-      seasonWindow.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-      seasonWindow.style.zIndex = '10000';
+async function showTvSeasons(tvItem, rect, progress = 0) {
+  try {
+    const resp = await fetch(`https://api.themoviedb.org/3/tv/${tvItem.id}?api_key=${apiKey}`);
+    const tvData = await resp.json();
+    console.log("TV Data for show:", tvData);
+    console.log("Seasons:", tvData.seasons); // Expected: Array with one object
+
+    const seasons = tvData.seasons || [];
+    const tvShowName = tvData.name || 'Untitled';
+    const tvShowPosterPath = tvData.poster_path || '';
+
+    // Calculate modal dimensions based on the actual window size
+    const modalWidth = window.innerWidth * 0.95;  // 95% of window width
+    const modalHeight = window.innerHeight * 0.90;  // 90% of window height
+
+    // Create the modal container for seasons
+    const seasonWindow = document.createElement('div');
+    seasonWindow.className = 'season-window';
+    seasonWindow.setAttribute('role', 'dialog');
+    seasonWindow.setAttribute('aria-modal', 'true');
+    seasonWindow.setAttribute('aria-labelledby', 'seasonWindowTitle');
+
+    // Apply explicit pixel dimensions instead of viewport units
+    seasonWindow.style.position = 'fixed';
+    seasonWindow.style.top = '50%';
+    seasonWindow.style.left = '50%';
+    seasonWindow.style.transform = 'translate(-50%, -50%)';
+    seasonWindow.style.width = modalWidth + "px";
+    seasonWindow.style.height = modalHeight + "px";
+    seasonWindow.style.overflowY = 'auto';
+    seasonWindow.style.backgroundColor = '#2e2e2e'; // Dark background matching your theme
+    seasonWindow.style.color = '#fff';              // White text
+    seasonWindow.style.padding = '20px';
+    seasonWindow.style.borderRadius = '8px';
+    seasonWindow.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+    seasonWindow.style.zIndex = '10000';
+    seasonWindow.style.display = 'block';
+
+    // Build inner HTML based on whether seasons exist
+    if (seasons.length === 0) {
       seasonWindow.innerHTML = `
         <h3 id="seasonWindowTitle">${tvShowName}</h3>
-        <button id="closeSeasonWindow" style="background-color: #e74c3c; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Close</button>
-        <div id="seasonButtons" style="margin-top: 10px;"></div>
+        <p>No season data available.</p>
+        <button id="closeSeasonWindow" style="background-color: #e74c3c; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px;">Close</button>
+      `;
+      console.warn("No seasons available.");
+    } else {
+      seasonWindow.innerHTML = `
+        <h3 id="seasonWindowTitle">${tvShowName}</h3>
+        <button id="closeSeasonWindow" style="background-color: #e74c3c; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px;">Close</button>
+        <div id="seasonButtons" style="margin-top: 15px; padding: 10px;"></div>
         <div id="episodesDiv" style="margin-top: 20px;"></div>
       `;
-      document.body.appendChild(seasonWindow);
-      const closeBtn = seasonWindow.querySelector('#closeSeasonWindow');
-      closeBtn.onclick = () => seasonWindow.remove();
-      const handleEscape = (event) => {
-        if (event.key === 'Escape') {
-          seasonWindow.remove();
-          document.removeEventListener('keydown', handleEscape);
-        }
-      };
-      document.addEventListener('keydown', handleEscape);
-      const episodesDiv = seasonWindow.querySelector('#episodesDiv');
-      seasons.forEach((s) => {
-        const btn = document.createElement('button');
-        btn.textContent = s.name;
-        btn.style.margin = '4px';
-        btn.style.backgroundColor = '#8e44ad';
-        btn.style.color = 'white';
-        btn.style.border = 'none';
-        btn.style.padding = '5px 10px';
-        btn.style.cursor = 'pointer';
-        btn.style.borderRadius = '4px';
-        btn.style.transition = 'background-color 0.3s';
-        btn.onmouseenter = () => {
-          btn.style.backgroundColor = '#a569bd';
-        };
-        btn.onmouseleave = () => {
-          btn.style.backgroundColor = '#8e44ad';
-        };
-        btn.onclick = async () => {
-          episodesDiv.innerHTML = '';
-          await showEpisodes(tvItem, s.season_number, episodesDiv, tvShowName, tvShowPosterPath);
-        };
-        seasonWindow.querySelector('#seasonButtons').appendChild(btn);
-      });
-    } catch (err) {
-      console.error("Error fetching TV seasons:", err);
     }
+
+    // Append the modal to the body
+    document.body.appendChild(seasonWindow);
+    console.log("Season window appended to DOM.");
+
+    // Set up the close button
+    const closeBtn = seasonWindow.querySelector('#closeSeasonWindow');
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        seasonWindow.remove();
+        console.log("Season window closed by button.");
+      };
+    } else {
+      console.error("Close button not found in seasonWindow!");
+    }
+
+    // Remove the modal on Escape key press
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        seasonWindow.remove();
+        document.removeEventListener('keydown', handleEscape);
+        console.log("Season window closed by Escape key.");
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    // If seasons exist, create a button for each season
+    if (seasons.length > 0) {
+      const seasonButtonsContainer = seasonWindow.querySelector('#seasonButtons');
+      if (!seasonButtonsContainer) {
+        console.error("Season buttons container not found!");
+      } else {
+        seasons.forEach((s, index) => {
+          const btn = document.createElement('button');
+          // Use s.name if available; fallback to "Season " + (s.season_number or index+1)
+          btn.textContent = s.name || `Season ${s.season_number || index + 1}`;
+          btn.style.margin = '4px';
+          btn.style.backgroundColor = '#8e44ad';
+          btn.style.color = 'white';
+          btn.style.border = 'none';
+          btn.style.padding = '8px 12px';
+          btn.style.cursor = 'pointer';
+          btn.style.borderRadius = '4px';
+          btn.style.transition = 'background-color 0.3s';
+          btn.style.display = 'block';
+          btn.onmouseenter = () => {
+            btn.style.backgroundColor = '#a569bd';
+          };
+          btn.onmouseleave = () => {
+            btn.style.backgroundColor = '#8e44ad';
+          };
+          btn.onclick = async () => {
+            const episodesDiv = seasonWindow.querySelector('#episodesDiv');
+            if (episodesDiv) {
+              episodesDiv.innerHTML = '';
+              console.log("Season button clicked for season number:", s.season_number);
+              await showEpisodes(tvItem, s.season_number, episodesDiv, tvShowName, tvShowPosterPath);
+            } else {
+              console.error("Episodes container not found!");
+            }
+          };
+          seasonButtonsContainer.appendChild(btn);
+          console.log("Season button created for:", btn.textContent);
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching TV seasons:", err);
   }
+}
 
   async function showEpisodes(tvShow, seasonNumber, container, tvShowName, tvShowPosterPath) {
     console.log("showEpisodes called:", tvShow.id, seasonNumber);
