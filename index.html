@@ -172,11 +172,6 @@
         
         window.addEventListener('beforeunload', () => {
           clearInterval(intervalId);
-          // If you prefer the active user record to persist across refreshes,
-          // comment out or remove the following deletion:
-          // userRef.delete().catch((error) => {
-          //   console.error("Error removing user from activeUsers:", error);
-          // });
         });
       } else {
         console.log("User is signed out.");
