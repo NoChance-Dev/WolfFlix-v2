@@ -1,6 +1,6 @@
 This is the latest version of WolfFlix.
 
-This is i feel the complete version ill keep on working on it but be minor things now.
+This is i feel the complete version ill keep on working on it but it will be minor things for now on.
 
 This uses Vidsrc Ad-free API feel free to change if needed.
 
