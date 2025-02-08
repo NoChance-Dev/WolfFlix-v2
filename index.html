@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WOLFFLIX</title>
   <!-- Google Fonts for a sleek look -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -67,7 +67,7 @@
       // Function to fetch and display active user count
       function displayActiveUsers() {
         const activeUsersElement = document.getElementById('activeUsers');
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60000); // 5 minutes
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60000); // 5 minutes ago
 
         // Query activeUsers where lastActive >= fiveMinutesAgo
         db.collection('activeUsers')
@@ -137,10 +137,10 @@
 
   <!-- Firebase Authentication Scripts -->
   <script>
-    // Sign in anonymously
+    // Sign in anonymously with added logging for debugging
     auth.signInAnonymously()
-      .then(() => {
-        console.log("Signed in anonymously");
+      .then((userCredential) => {
+        console.log("Signed in anonymously:", userCredential.user.uid);
       })
       .catch((error) => {
         console.error("Anonymous sign-in failed:", error);
@@ -150,16 +150,17 @@
   <script>
     auth.onAuthStateChanged((user) => {
       if (user) {
+        console.log("User is signed in:", user.uid);
         const userId = user.uid;
         const userRef = db.collection('activeUsers').doc(userId);
         
-        // Update lastActive timestamp function
+        // Function to update lastActive timestamp
         const updateLastActive = () => {
           userRef.set({
             lastActive: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true })
           .then(() => {
-            console.log("Active status updated");
+            console.log("Active status updated for user:", userId);
           })
           .catch((error) => {
             console.error("Error updating active status:", error);
@@ -171,10 +172,14 @@
         
         window.addEventListener('beforeunload', () => {
           clearInterval(intervalId);
-          userRef.delete().catch((error) => {
-            console.error("Error removing user from activeUsers:", error);
-          });
+          // If you prefer the active user record to persist across refreshes,
+          // comment out or remove the following deletion:
+          // userRef.delete().catch((error) => {
+          //   console.error("Error removing user from activeUsers:", error);
+          // });
         });
+      } else {
+        console.log("User is signed out.");
       }
     });
   </script>
