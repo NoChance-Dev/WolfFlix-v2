@@ -14,148 +14,133 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Global variable to store current TV episode details.
   let currentTvEpisodeData = {
-    tvId: null,         // The TV show’s identifier.
-    season: null,       // Current season number.
-    episode: null,      // Current episode number.
-    tvShowName: '',     // For display purposes.
-    tvShowPosterPath: ''// Thumbnail info.
+    tvId: null,
+    season: null,
+    episode: null,
+    tvShowName: '',
+    tvShowPosterPath: ''
   };
 
   // ------------------- AUTOPLAY TIMER FUNCTIONALITY -------------------
-  // Global flag to track autoplay state.
   let autoplayNextEnabled = true;
+  function addAutoplayToggle() {
+    if (document.getElementById('autoplayContainer')) return;
+    const autoplayContainer = document.createElement('div');
+    autoplayContainer.id = 'autoplayContainer';
+    autoplayContainer.style.position = 'absolute';
+    autoplayContainer.style.top = '10px';
+    autoplayContainer.style.left = '10px';
+    autoplayContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    autoplayContainer.style.padding = '8px 12px';
+    autoplayContainer.style.borderRadius = '4px';
+    autoplayContainer.style.zIndex = '10000';
+    autoplayContainer.style.color = '#fff';
+    autoplayContainer.style.fontSize = '1rem';
+    autoplayContainer.style.whiteSpace = 'nowrap';
 
-  // Adds the autoplay toggle checkbox to the player overlay (inside .player-inner).
-function addAutoplayToggle() {
-  // If the container already exists, do nothing.
-  if (document.getElementById('autoplayContainer')) return;
+    const autoplayCheckbox = document.createElement('input');
+    autoplayCheckbox.type = 'checkbox';
+    autoplayCheckbox.id = 'autoplayNext';
+    autoplayCheckbox.style.marginRight = '5px';
+    autoplayCheckbox.checked = autoplayNextEnabled;
+    autoplayCheckbox.addEventListener('change', (event) => {
+      autoplayNextEnabled = event.target.checked;
+      console.log('Autoplay Next enabled:', autoplayNextEnabled);
+    });
 
-  const autoplayContainer = document.createElement('div');
-  autoplayContainer.id = 'autoplayContainer';
-  // Position the container absolutely within .player-inner.
-  autoplayContainer.style.position = 'absolute';
-  autoplayContainer.style.top = '10px';
-  autoplayContainer.style.left = '10px'; // Use left instead of right.
-  // Style the container so it stands out.
-  autoplayContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-  autoplayContainer.style.padding = '8px 12px';
-  autoplayContainer.style.borderRadius = '4px';
-  autoplayContainer.style.zIndex = '10000';
-  autoplayContainer.style.color = '#fff';
-  autoplayContainer.style.fontSize = '1rem';
-  autoplayContainer.style.whiteSpace = 'nowrap';
+    const autoplayLabel = document.createElement('label');
+    autoplayLabel.htmlFor = 'autoplayNext';
+    autoplayLabel.textContent = 'Autoplay Next [BETA]';
 
-  const autoplayCheckbox = document.createElement('input');
-  autoplayCheckbox.type = 'checkbox';
-  autoplayCheckbox.id = 'autoplayNext';
-  autoplayCheckbox.style.marginRight = '5px';
-  autoplayCheckbox.checked = autoplayNextEnabled;
-  autoplayCheckbox.addEventListener('change', (event) => {
-    autoplayNextEnabled = event.target.checked;
-    console.log('Autoplay Next enabled:', autoplayNextEnabled);
-  });
+    autoplayContainer.appendChild(autoplayCheckbox);
+    autoplayContainer.appendChild(autoplayLabel);
 
-  const autoplayLabel = document.createElement('label');
-  autoplayLabel.htmlFor = 'autoplayNext';
-  autoplayLabel.textContent = 'Autoplay Next';
-
-  autoplayContainer.appendChild(autoplayCheckbox);
-  autoplayContainer.appendChild(autoplayLabel);
-
-  // Append the toggle to the .player-inner container.
-  const playerInner = document.querySelector('.player-inner');
-  if (playerInner) {
-    // Ensure .player-inner is positioned relative.
-    playerInner.style.position = 'relative';
-    playerInner.appendChild(autoplayContainer);
+    const playerInner = document.querySelector('.player-inner');
+    if (playerInner) {
+      playerInner.style.position = 'relative';
+      playerInner.appendChild(autoplayContainer);
+    }
   }
-}
   
-  // Fetch the movie runtime (in minutes) from TMDB.
   async function getMovieRuntime(movieId) {
     try {
       const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}`);
       const data = await response.json();
-      return data.runtime; // runtime in minutes
+      return data.runtime;
     } catch (error) {
       console.error("Error fetching movie runtime:", error);
       return null;
     }
   }
   
-  // Fetch the TV episode runtime (in minutes) from TMDB.
   async function getEpisodeRuntime(tvId, season, episode) {
     try {
       const response = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${season}/episode/${episode}?api_key=${apiKey}`);
       const data = await response.json();
-      return data.runtime; // runtime in minutes
+      return data.runtime;
     } catch (error) {
       console.error("Error fetching episode runtime:", error);
       return null;
     }
   }
   
-  // Starts a timer based on the TMDB runtime.
-  // When the timer expires and if autoplay is enabled,
-  // it simulates clicking the "Next Episode" button (for TV shows).
-async function startAutoplayTimerForContent(currentContent) {
-  console.log("startAutoplayTimerForContent called with:", currentContent);
-  if (!autoplayNextEnabled) {
-    console.log("Autoplay not enabled; timer will not start.");
-    return;
-  }
+  async function startAutoplayTimerForContent(currentContent) {
+    console.log("startAutoplayTimerForContent called with:", currentContent);
+    if (!autoplayNextEnabled) {
+      console.log("Autoplay not enabled; timer will not start.");
+      return;
+    }
 
-  if (currentContent.type === 'movie') {
-    const runtime = await getMovieRuntime(currentContent.id);
-    console.log("Movie runtime fetched:", runtime);
-    if (runtime) {
-      const durationSeconds = runtime * 60 + 5; // use the actual runtime in seconds plus a 5-second buffer
-      console.log("Setting movie timer for:", durationSeconds, "seconds");
-      setTimeout(() => {
-        if (autoplayNextEnabled) {
-          console.log("Movie autoplay timer triggered.");
-          // Implement next movie logic here if desired.
-        }
-      }, durationSeconds * 1000);
-    } else {
-      console.log("No runtime available for the movie.");
-    }
-  } else if (currentContent.type === 'tv_show') {
-    const runtime = await getEpisodeRuntime(currentTvEpisodeData.tvId, currentTvEpisodeData.season, currentTvEpisodeData.episode);
-    console.log("TV episode runtime fetched:", runtime);
-    if (runtime) {
-      const durationSeconds = runtime * 60 + 10; // use the actual runtime in seconds plus a 5-second buffer
-      console.log("Setting TV episode timer for:", durationSeconds, "seconds");
-      setTimeout(() => {
-        if (autoplayNextEnabled) {
-          console.log("TV episode autoplay timer triggered, moving to next episode.");
-          const nextBtn = document.getElementById('nextEpisodeBtn');
-          if (nextBtn) {
-            nextBtn.click();
-          } else {
-            console.log("Next episode button not found.");
+    if (currentContent.type === 'movie') {
+      const runtime = await getMovieRuntime(currentContent.id);
+      console.log("Movie runtime fetched:", runtime);
+      if (runtime) {
+        const durationSeconds = runtime * 60 + 10;
+        console.log("Setting movie timer for:", durationSeconds, "seconds");
+        setTimeout(() => {
+          if (autoplayNextEnabled) {
+            console.log("Movie autoplay timer triggered.");
           }
-        }
-      }, durationSeconds * 1000);
-    } else {
-      console.log("No runtime available for this TV episode.");
+        }, durationSeconds * 1000);
+      } else {
+        console.log("No runtime available for the movie.");
+      }
+    } else if (currentContent.type === 'tv_show') {
+      const runtime = await getEpisodeRuntime(currentTvEpisodeData.tvId, currentTvEpisodeData.season, currentTvEpisodeData.episode);
+      console.log("TV episode runtime fetched:", runtime);
+      if (runtime) {
+        const durationSeconds = runtime * 60 + 10;
+        console.log("Setting TV episode timer for:", durationSeconds, "seconds");
+        setTimeout(() => {
+          if (autoplayNextEnabled) {
+            console.log("TV episode autoplay timer triggered, moving to next episode.");
+            let newEpisode = currentTvEpisodeData.episode + 1;
+            currentTvEpisodeData.episode = newEpisode;
+            playEpisode(
+              currentTvEpisodeData.tvId,
+              currentTvEpisodeData.season,
+              newEpisode,
+              currentTvEpisodeData.tvShowName,
+              currentTvEpisodeData.tvShowPosterPath
+            );
+          }
+        }, durationSeconds * 1000);
+      } else {
+        console.log("No runtime available for this TV episode.");
+      }
     }
   }
-}
   // ----------------- END AUTOPLAY TIMER FUNCTIONALITY -----------------
 
   // =================== WATCHLIST FUNCTIONS ===================
   const WATCHLIST_KEY = 'userWatchlist';
-
   function getWatchlist() {
     const data = localStorage.getItem(WATCHLIST_KEY);
     return data ? JSON.parse(data) : [];
   }
-
   function saveWatchlist(items) {
     localStorage.setItem(WATCHLIST_KEY, JSON.stringify(items));
   }
-
   function addToWatchlist(item) {
     let items = getWatchlist();
     if (!items.some(existing => existing.id === item.id && existing.type === item.type)) {
@@ -166,7 +151,6 @@ async function startAutoplayTimerForContent(currentContent) {
       alert(`${item.title} is already in your watchlist.`);
     }
   }
-
   function renderWatchlist() {
     const watchlistItemsContainer = document.getElementById('watchlistItems');
     const items = getWatchlist();
@@ -199,29 +183,147 @@ async function startAutoplayTimerForContent(currentContent) {
   const watchlistButton = document.getElementById('watchlistButton');
   const watchlistModal = document.getElementById('watchlistModal');
   const closeWatchlist = document.querySelector('.close-watchlist');
-
   watchlistButton.addEventListener('click', () => {
     renderWatchlist();
     watchlistModal.style.display = 'block';
   });
-
   closeWatchlist.addEventListener('click', () => {
     watchlistModal.style.display = 'none';
   });
-
   window.addEventListener('click', (event) => {
     if (event.target === watchlistModal) {
       watchlistModal.style.display = 'none';
     }
   });
-  // ============================================================
+
+  // ================= NEW: Autoplay Info & Customise Page Functionality =================
+  document.getElementById('autoplayInfoBtn').addEventListener('click', function() {
+    alert("Autoplay is Enabled on start-up, Timer starts when you open the episode and will play the next episode when the Timer ends and will auto play the next episode with the new Timer.");
+  });
+  document.getElementById('customisePageBtn').addEventListener('click', function() {
+    document.getElementById('customiseModal').style.display = 'block';
+  });
+  document.getElementById('closeCustomiseModal').addEventListener('click', function() {
+    document.getElementById('customiseModal').style.display = 'none';
+  });
+  window.addEventListener('click', function(event) {
+    const customiseModal = document.getElementById('customiseModal');
+    if (event.target === customiseModal) {
+      customiseModal.style.display = 'none';
+    }
+  });
+
+  // ================= NEW: App Download and Join Discord Functionality =================
+  // Open App Download modal
+  document.getElementById('appDownloadBtn').addEventListener('click', function() {
+    document.getElementById('appDownloadModal').style.display = 'block';
+  });
+  // Close App Download modal when the close icon is clicked
+  document.getElementById('closeAppDownloadModal').addEventListener('click', function() {
+    document.getElementById('appDownloadModal').style.display = 'none';
+  });
+  // Also close the modal if user clicks outside of it
+  window.addEventListener('click', function(event) {
+    const appDownloadModal = document.getElementById('appDownloadModal');
+    if (event.target === appDownloadModal) {
+      appDownloadModal.style.display = 'none';
+    }
+  });
+  // Apple and Android download buttons show "Coming Soon" (replace href when ready)
+  document.getElementById('downloadAppleBtn').addEventListener('click', function() {
+    alert("Coming Soon");
+    // To add a download link later, uncomment the next line and add your URL:
+    // window.open('https://your-apple-download-link.com', '_blank');
+  });
+  document.getElementById('downloadAndroidBtn').addEventListener('click', function() {
+    alert("Taking you to Download Wolfflix.apk");
+    // To add a download link later, uncomment the next line and add your URL:
+    window.open('https://files.vc/d/dl?hash=213ab131f1cd917223565ca29351042c', '_blank');
+  });
+  // Join Discord button opens your Discord invite link in a new tab.
+  document.getElementById('joinDiscordBtn').addEventListener('click', function() {
+    window.open('https://discord.gg/XmWKgVkQ4S', '_blank');
+  });
+
+  // --- Apply custom theme and persist selection ---
+  window.applyTheme = function(theme) {
+    let themeColors = {};
+    if (theme === 'spooky') {
+      themeColors = {
+        '--bg-color': 'black',
+        '--text-color': 'orange',
+        '--header-bg': 'black',
+        '--header-text': 'orange',
+        '--button-bg': 'linear-gradient(45deg, black, orange)',
+        '--button-hover-bg': 'orange',
+        '--modal-bg': '#000',
+        '--modal-text': 'orange'
+      };
+    } else if (theme === 'chill') {
+      themeColors = {
+        '--bg-color': '#AEDFF7',
+        '--text-color': '#003366',
+        '--header-bg': '#AEDFF7',
+        '--header-text': '#003366',
+        '--button-bg': 'linear-gradient(45deg, #AEDFF7, #003366)',
+        '--button-hover-bg': '#003366',
+        '--modal-bg': '#AEDFF7',
+        '--modal-text': '#003366'
+      };
+    } else if (theme === 'cozy') {
+      themeColors = {
+        '--bg-color': '#FFF8E7',
+        '--text-color': '#5C4033',
+        '--header-bg': '#FFF8E7',
+        '--header-text': '#5C4033',
+        '--button-bg': 'linear-gradient(45deg, #FFF8E7, #5C4033)',
+        '--button-hover-bg': '#5C4033',
+        '--modal-bg': '#FFF8E7',
+        '--modal-text': '#5C4033'
+      };
+    } else if (theme === 'hacker') {
+      themeColors = {
+        '--bg-color': 'black',
+        '--text-color': 'lime',
+        '--header-bg': 'black',
+        '--header-text': 'lime',
+        '--button-bg': 'linear-gradient(45deg, black, lime)',
+        '--button-hover-bg': 'lime',
+        '--modal-bg': 'black',
+        '--modal-text': 'lime'
+      };
+    } else if (theme === 'original') {
+      themeColors = {
+        '--bg-color': '#141414',
+        '--text-color': '#ffffff',
+        '--header-bg': 'linear-gradient(90deg, #141414, #222222)',
+        '--header-text': '#8e44ad',
+        '--button-bg': 'linear-gradient(45deg, #8e44ad, #a569bd)',
+        '--button-hover-bg': '#a569bd',
+        '--modal-bg': '#222',
+        '--modal-text': '#fff'
+      };
+    }
+    for (const prop in themeColors) {
+      document.documentElement.style.setProperty(prop, themeColors[prop]);
+    }
+    document.getElementById('customiseModal').style.display = 'none';
+
+    // Save the selected theme so it persists across page refreshes.
+    localStorage.setItem("selectedTheme", theme);
+  };
+
+  // --- Check local storage for a previously selected theme and apply it ---
+  const storedTheme = localStorage.getItem("selectedTheme");
+  if (storedTheme) {
+    applyTheme(storedTheme);
+  }
 
   let openServerSelection = null;
 
   // ========== OVERLAY CLOSE BUTTON SETUP ==========
   const closePlayerBtn = document.getElementById('closePlayerBtn');
   console.log("closePlayerBtn found:", closePlayerBtn);
-
   if (!closePlayerBtn) {
     console.error("No element with id='closePlayerBtn' found in the DOM! Check HTML.");
   } else {
@@ -251,7 +353,6 @@ async function startAutoplayTimerForContent(currentContent) {
   loader.style.display = 'none';
   loader.style.zIndex = '15000';
   document.body.appendChild(loader);
-
   const showLoader = () => { loader.style.display = 'block'; };
   const hideLoader = () => { loader.style.display = 'none'; };
 
@@ -261,16 +362,13 @@ async function startAutoplayTimerForContent(currentContent) {
   // ========== RECENTLY VIEWED FUNCTIONALITY ==========
   const RECENTLY_VIEWED_KEY = 'recentlyViewedItems';
   const MAX_RECENT_ITEMS = 50;
-
   function getRecentlyViewed() {
     const data = localStorage.getItem(RECENTLY_VIEWED_KEY);
     return data ? JSON.parse(data) : [];
   }
-
   function saveRecentlyViewed(items) {
     localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(items));
   }
-
   function addRecentlyViewed(item) {
     let items = getRecentlyViewed();
     items = items.filter(existingItem => !(existingItem.id === item.id && existingItem.type === item.type));
@@ -285,7 +383,6 @@ async function startAutoplayTimerForContent(currentContent) {
   const chatbox = document.getElementById('chatbox');
   const messageForm = document.getElementById('messageForm');
   const messageInput = document.getElementById('messageInput');
-
   function appendMessage(message, isBot = false) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
@@ -308,7 +405,6 @@ async function startAutoplayTimerForContent(currentContent) {
   }
 
   const apiKey = 'b221abd73f92eec24dfe49c96877b615';
-
   const genresList = {
     "action": 28,
     "adventure": 12,
@@ -584,15 +680,12 @@ async function startAutoplayTimerForContent(currentContent) {
 
   async function fetchAndDisplayCategories() {
     console.log("fetchAndDisplayCategories started");
-
     for (const category of categories) {
       if (category.recentlyViewed) {
         createRecentlyViewedCategory();
         continue;
       }
-
       console.log("Loading category:", category.name);
-
       const section = document.createElement('section');
       section.className = 'category';
       section.innerHTML = `
@@ -603,21 +696,17 @@ async function startAutoplayTimerForContent(currentContent) {
           <button class="scroll-btn right-btn">▶</button>
         </div>
       `;
-
       const categoryContainer = section.querySelector('.movies');
       moviesContainer.appendChild(section);
-
       if (category.liveTV) {
         section.style.display = 'none';
         section.id = category.id;
       }
-
       try {
         showLoader();
         const response = await fetch(category.endpoint);
         const data = await response.json();
         console.log(`Category "${category.name}" fetch result:`, data);
-
         if (category.liveTV && Array.isArray(data)) {
           data.forEach((match) => {
             const liveTvTitle = document.createElement('div');
@@ -634,12 +723,10 @@ async function startAutoplayTimerForContent(currentContent) {
             playButton.style.cursor = 'pointer';
             playButton.style.borderRadius = '4px';
             playButton.style.marginTop = '5px';
-
             playButton.onclick = () => {
               if (openServerSelection) {
                 openServerSelection.remove();
               }
-
               const servers = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot'];
               const serverSelection = document.createElement('div');
               serverSelection.className = 'server-selection';
@@ -651,7 +738,6 @@ async function startAutoplayTimerForContent(currentContent) {
               serverSelection.style.borderRadius = '8px';
               serverSelection.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
               serverSelection.style.zIndex = '10001';
-
               servers.forEach((server) => {
                 const serverButton = document.createElement('button');
                 serverButton.innerText = server;
@@ -663,14 +749,12 @@ async function startAutoplayTimerForContent(currentContent) {
                 serverButton.style.cursor = 'pointer';
                 serverButton.style.borderRadius = '4px';
                 serverButton.style.transition = 'background-color 0.3s';
-
                 serverButton.onmouseenter = () => {
                   serverButton.style.backgroundColor = '#a569bd';
                 };
                 serverButton.onmouseleave = () => {
                   serverButton.style.backgroundColor = '#8e44ad';
                 };
-
                 serverButton.onclick = () => {
                   const streamUrl = `https://streamed.su/watch/${match.id}/${server.toLowerCase()}/1`;
                   window.open(streamUrl, '_blank');
@@ -679,11 +763,9 @@ async function startAutoplayTimerForContent(currentContent) {
                 };
                 serverSelection.appendChild(serverButton);
               });
-
               document.body.appendChild(serverSelection);
               openServerSelection = serverSelection;
             };
-
             liveTvTitle.appendChild(playButton);
             categoryContainer.appendChild(liveTvTitle);
           });
@@ -701,7 +783,6 @@ async function startAutoplayTimerForContent(currentContent) {
       } finally {
         hideLoader();
       }
-
       const leftBtn = section.querySelector('.left-btn');
       const rightBtn = section.querySelector('.right-btn');
       leftBtn.onclick = () => {
@@ -715,7 +796,6 @@ async function startAutoplayTimerForContent(currentContent) {
 
   function createRecentlyViewedCategory() {
     console.log("Creating Recently Viewed category");
-
     const section = document.createElement('section');
     section.className = 'category recently-viewed-section';
     section.innerHTML = `
@@ -726,20 +806,16 @@ async function startAutoplayTimerForContent(currentContent) {
         <button class="scroll-btn right-btn">▶</button>
       </div>
     `;
-
     moviesContainer.appendChild(section);
-
     const leftButton = section.querySelector('.left-btn');
     const rightButton = section.querySelector('.right-btn');
     const recentItemsContainer = section.querySelector('.movies');
-
     leftButton.onclick = () => {
       recentItemsContainer.scrollBy({ left: -300, behavior: 'smooth' });
     };
     rightButton.onclick = () => {
       recentItemsContainer.scrollBy({ left: 300, behavior: 'smooth' });
     };
-
     renderRecentlyViewed();
   }
 
@@ -791,8 +867,6 @@ async function startAutoplayTimerForContent(currentContent) {
     const title = document.createElement('p');
     title.textContent = item.title || item.name || 'Untitled';
     movieElement.appendChild(title);
-
-    // Add "Add to Watchlist" button.
     const watchlistBtn = document.createElement('button');
     watchlistBtn.innerText = 'Add to Watchlist';
     watchlistBtn.classList.add('watchlist-btn');
@@ -806,7 +880,6 @@ async function startAutoplayTimerForContent(currentContent) {
       });
     };
     movieElement.appendChild(watchlistBtn);
-
     movieElement.onclick = async (event) => {
       console.log("MovieCard clicked. isMovie:", isMovie, " item:", item);
       if (isMovie) {
@@ -823,12 +896,9 @@ async function startAutoplayTimerForContent(currentContent) {
       };
       addRecentlyViewed(recentlyViewedItem);
     };
-
     return movieElement;
   }
 
-  // --- UPDATED: Using new API endpoints ---
-  // For movies: use https://vidsrc.su/embed/movie/{tmdb_id}
   function playRandomMovie(movieId, title, posterPath, progress = 0) {
     console.log("playRandomMovie called with:", movieId, "progress:", progress);
     const embedUrl = `https://vidsrc.su/embed/movie/${movieId}`;
@@ -836,7 +906,6 @@ async function startAutoplayTimerForContent(currentContent) {
     openPlayer(urlWithProgress, { id: movieId, type: 'movie' });
   }
 
-  // For TV shows: use https://vidsrc.su/embed/tv/{tmdb_id}/{season_number}/{episode_number}
   async function playEpisode(tvId, seasonNumber, episodeNumber, tvShowName, tvShowPosterPath, progress = 0) {
     currentTvEpisodeData = { 
       tvId, 
@@ -845,12 +914,9 @@ async function startAutoplayTimerForContent(currentContent) {
       tvShowName, 
       tvShowPosterPath 
     };
-
     const embedUrl = `https://vidsrc.su/embed/tv/${tvId}/${seasonNumber}/${episodeNumber}`;
     const urlWithProgress = progress > 0 ? `${embedUrl}?start=${progress}` : embedUrl;
-
     openPlayer(urlWithProgress, { id: tvId, type: 'tv_show' });
-    
     const recentlyViewedItem = {
       id: tvId,
       title: `${tvShowName} (Season ${seasonNumber}) (Episode ${episodeNumber})`,
@@ -863,36 +929,29 @@ async function startAutoplayTimerForContent(currentContent) {
     addRecentlyViewed(recentlyViewedItem);
   }
 
-  // Modified openPlayer: now forces the overlay to be fixed, adds the autoplay toggle,
-  // and starts the autoplay timer if a content object is provided.
-function openPlayer(embedUrl, currentContent = null) {
-  // Reset any previous timer flag if necessary.
-  timerStarted = false;
-  const playerOverlay = document.getElementById('playerOverlay');
-  const playerIframe = document.getElementById('playerIframe');
-  const recommendedTitles = document.getElementById('recommendedTitles');
-  if (playerOverlay && playerIframe) {
-    // Force the overlay to be fixed.
-    playerOverlay.style.position = 'fixed';
-    playerIframe.src = embedUrl;
-    playerOverlay.style.display = 'flex';
-    // Ensure that the .player-inner container is relatively positioned so the toggle is positioned correctly.
-    const playerInner = document.querySelector('.player-inner');
-    if (playerInner) {
-      playerInner.style.position = 'relative';
-    }
-    // Add the autoplay toggle UI.
-    addAutoplayToggle();
-    createRecommendedTitlesSection();
-    if (currentContent && currentContent.id && currentContent.type) {
-      fetchAndDisplayRecommendations(currentContent.id, currentContent.type);
-    }
-    // Start the autoplay timer immediately when the play button is clicked.
-    if (currentContent) {
-      startAutoplayTimerForContent(currentContent);
+  function openPlayer(embedUrl, currentContent = null) {
+    timerStarted = false;
+    const playerOverlay = document.getElementById('playerOverlay');
+    const playerIframe = document.getElementById('playerIframe');
+    const recommendedTitles = document.getElementById('recommendedTitles');
+    if (playerOverlay && playerIframe) {
+      playerOverlay.style.position = 'fixed';
+      playerIframe.src = embedUrl;
+      playerOverlay.style.display = 'flex';
+      const playerInner = document.querySelector('.player-inner');
+      if (playerInner) {
+        playerInner.style.position = 'relative';
+      }
+      addAutoplayToggle();
+      createRecommendedTitlesSection();
+      if (currentContent && currentContent.id && currentContent.type) {
+        fetchAndDisplayRecommendations(currentContent.id, currentContent.type);
+      }
+      if (currentContent) {
+        startAutoplayTimerForContent(currentContent);
+      }
     }
   }
-}
 
   function createRecommendedTitlesSection() {
     const playerOverlay = document.getElementById('playerOverlay');
@@ -997,14 +1056,11 @@ function openPlayer(embedUrl, currentContent = null) {
       const tvData = await resp.json();
       console.log("TV Data for show:", tvData);
       console.log("Seasons:", tvData.seasons);
-
       const seasons = tvData.seasons || [];
       const tvShowName = tvData.name || 'Untitled';
       const tvShowPosterPath = tvData.poster_path || '';
-
       const modalWidth = window.innerWidth * 0.95;
       const modalHeight = window.innerHeight * 0.90;
-
       const seasonWindow = document.createElement('div');
       seasonWindow.className = 'season-window';
       seasonWindow.setAttribute('role', 'dialog');
@@ -1024,7 +1080,6 @@ function openPlayer(embedUrl, currentContent = null) {
       seasonWindow.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
       seasonWindow.style.zIndex = '10000';
       seasonWindow.style.display = 'block';
-
       if (seasons.length === 0) {
         seasonWindow.innerHTML = `
           <h3 id="seasonWindowTitle">${tvShowName}</h3>
@@ -1042,7 +1097,6 @@ function openPlayer(embedUrl, currentContent = null) {
       }
       document.body.appendChild(seasonWindow);
       console.log("Season window appended to DOM.");
-
       const closeBtn = seasonWindow.querySelector('#closeSeasonWindow');
       if (closeBtn) {
         closeBtn.onclick = () => {
@@ -1052,7 +1106,6 @@ function openPlayer(embedUrl, currentContent = null) {
       } else {
         console.error("Close button not found in seasonWindow!");
       }
-
       const handleEscape = (event) => {
         if (event.key === 'Escape') {
           seasonWindow.remove();
@@ -1061,7 +1114,6 @@ function openPlayer(embedUrl, currentContent = null) {
         }
       };
       document.addEventListener('keydown', handleEscape);
-
       if (seasons.length > 0) {
         const seasonButtonsContainer = seasonWindow.querySelector('#seasonButtons');
         if (!seasonButtonsContainer) {
@@ -1129,7 +1181,6 @@ function openPlayer(embedUrl, currentContent = null) {
         episodeElement.onmouseleave = () => {
           episodeElement.style.backgroundColor = '#2e2e2e';
         };
-
         episodeElement.onclick = () => {
           playEpisode(tvShow.id, seasonNumber, ep.episode_number, tvShowName, tvShowPosterPath);
           const seasonWindow = document.querySelector('.season-window');
@@ -1137,7 +1188,6 @@ function openPlayer(embedUrl, currentContent = null) {
             seasonWindow.remove();
           }
         };
-
         container.appendChild(episodeElement);
       });
     } catch (err) {

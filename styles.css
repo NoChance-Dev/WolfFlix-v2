@@ -1,16 +1,28 @@
+/* Define CSS variables for theming */
+:root {
+  --bg-color: #141414;
+  --text-color: #ffffff;
+  --header-bg: linear-gradient(90deg, #141414, #222222);
+  --header-text: #8e44ad;
+  --button-bg: linear-gradient(45deg, #8e44ad, #a569bd);
+  --button-hover-bg: #a569bd;
+  --modal-bg: #222;
+  --modal-text: #fff;
+}
+
 /* Global Styles */
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #141414; /* Deep dark background */
-  color: #ffffff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   margin: 0;
   padding: 0;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Header */
 header {
-  background: linear-gradient(90deg, #141414, #222222);
+  background: var(--header-bg);
   padding: 20px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
@@ -19,8 +31,7 @@ header {
 h1 {
   margin: 0;
   font-size: 2.5rem;
-  /* Using purple accent instead of red */
-  color: #8e44ad;
+  color: var(--header-text);
   font-family: 'Montserrat', sans-serif;
 }
 
@@ -78,7 +89,7 @@ h1 {
   transition: opacity 0.3s ease;
 }
 
-/* Scroll Container for Categories (with arrow buttons) */
+/* Scroll Container for Categories */
 .scroll-container {
   display: flex;
   align-items: center;
@@ -135,26 +146,30 @@ footer {
   overflow: hidden;
 }
 
-/* Updated close button with purple theme */
-#closePlayerBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 8px 12px;
-  background-color: #8e44ad;
-  color: white;
+/* Common Button Styles */
+.btn {
+  padding: 10px 20px;
+  background: var(--button-bg);
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 50px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
-  z-index: 1000;
-  transition: background-color 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  margin: 10px;
+}
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+.btn:active {
+  transform: scale(0.98);
 }
 
-#closePlayerBtn:hover {
-  background-color: #a569bd;
-}
-
-/* Updated iframe rule */
+/* iFrame */
 #playerIframe {
   width: 100%;
   height: 100%;
@@ -162,7 +177,6 @@ footer {
 }
 
 /* Episode Navigation Buttons */
-/* Moved from bottom to the vertical center sides of the iframe */
 #episodeNav {
   position: absolute;
   top: 50%;
@@ -175,17 +189,6 @@ footer {
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  padding: 8px 12px;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-#prevEpisodeBtn:hover {
-  background-color: #555;
 }
 
 #nextEpisodeBtn {
@@ -193,17 +196,6 @@ footer {
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  padding: 8px 12px;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-#nextEpisodeBtn:hover {
-  background-color: #555;
 }
 
 /* Recommended Titles Section */
@@ -326,23 +318,7 @@ footer {
 }
 
 #messageForm button {
-  padding: 10px 15px;
   margin-left: 10px;
-  border: none;
-  border-radius: 5px;
-  background-color: #8e44ad;
-  color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-#messageForm button:hover {
-  background-color: #a569bd;
-}
-
-#messageForm button:active {
-  transform: scale(0.95);
 }
 
 /* Animations */
@@ -361,7 +337,7 @@ footer {
 .active-users-container {
   display: flex;
   align-items: center;
-  color: #8e44ad;
+  color: var(--header-text);
 }
 
 .status-indicator {
@@ -392,13 +368,13 @@ footer {
 }
 
 .modal-content {
-  background-color: #222;
+  background-color: var(--modal-bg);
   margin: 10% auto;
   padding: 20px;
   border: 1px solid #333;
   width: 80%;
   max-width: 600px;
-  color: #fff;
+  color: var(--modal-text);
   border-radius: 8px;
   position: relative;
 }
@@ -443,12 +419,11 @@ footer {
   color: #fff;
 }
 
-/* NEW: Customized "Add to Watchlist" Button */
-/* Modern Sleek Watchlist Button */
+/* Customized "Add to Watchlist" Button */
 .watchlist-btn {
   margin-top: 8px;
   padding: 10px 20px;
-  background: linear-gradient(45deg, #8e44ad, #a569bd);
+  background: var(--button-bg);
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -470,27 +445,14 @@ footer {
   transform: scale(0.98);
 }
 
-/* Style for the "Watchlist" button that opens the modal */
-#watchlistButton {
-  padding: 10px 20px;
-  background: linear-gradient(45deg, #8e44ad, #a569bd);
-  color: #fff;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  margin: 10px;
+/* Logo container styles */
+.logo-container {
+  position: absolute; /* Positions the logo relative to the header */
+  top: 10px;
+  left: 10px;
 }
 
-#watchlistButton:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-}
-
-#watchlistButton:active {
-  transform: scale(0.98);
+.logo-container img {
+  max-height: 120px; /* Adjust as needed */
+  width: auto;
 }

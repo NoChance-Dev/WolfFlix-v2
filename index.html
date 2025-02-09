@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Logo Container -->
+  <div class="logo-container">
+    <img src="logo.png" alt="WOLFFLIX Logo">
+  </div>
   <title>WOLFFLIX</title>
   <!-- Google Fonts for a sleek look -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -53,8 +57,12 @@
       </a>
     </div>
 
-    <!-- Watchlist Button (Added) -->
-    <button id="watchlistButton">Watchlist</button>
+    <!-- Header Buttons (all styled with .btn) -->
+    <button id="watchlistButton" class="btn">Watchlist</button>
+    <button id="autoplayInfoBtn" class="btn">How Autoplay Works</button>
+    <button id="customisePageBtn" class="btn">Customise Page</button>
+    <button id="appDownloadBtn" class="btn">App Download</button>
+    <button id="joinDiscordBtn" class="btn">Join Discord</button>
 
     <!-- Active Users Display with Status Indicator -->
     <div class="active-users-container">
@@ -79,7 +87,6 @@
             console.error("Error fetching active users:", error);
           });
       }
-
       // Call the function on page load
       displayActiveUsers();
     </script>
@@ -93,7 +100,7 @@
     <div id="chatbox"></div>
     <form id="messageForm">
       <input id="messageInput" type="text" placeholder="Give me Movies with Jack Black..." required />
-      <button type="submit">Ask</button>
+      <button type="submit" class="btn">Ask</button>
     </form>
   </div>
 
@@ -112,11 +119,11 @@
   <!-- Player Overlay (hidden by default) -->
   <div id="playerOverlay">
     <div class="player-inner">
-      <button id="closePlayerBtn">Close</button>
+      <button id="closePlayerBtn" class="btn">Close</button>
       <iframe id="playerIframe" frameborder="0" allowfullscreen></iframe>
       <div id="episodeNav">
-        <button id="prevEpisodeBtn">Previous Episode</button>
-        <button id="nextEpisodeBtn">Next Episode</button>
+        <button id="prevEpisodeBtn" class="btn">Previous Episode</button>
+        <button id="nextEpisodeBtn" class="btn">Next Episode</button>
       </div>
     </div>
     <div id="recommendedTitles" class="recommended-titles-container">
@@ -124,7 +131,7 @@
     </div>
   </div>
 
-  <!-- Watchlist Modal (Added) -->
+  <!-- Watchlist Modal (Existing) -->
   <div id="watchlistModal" class="modal">
     <div class="modal-content">
       <span class="close-watchlist">&times;</span>
@@ -132,6 +139,29 @@
       <ul id="watchlistItems">
         <!-- Watchlist items will be injected here -->
       </ul>
+    </div>
+  </div>
+
+  <!-- Customise Page Modal -->
+  <div id="customiseModal" class="modal">
+    <div class="modal-content">
+      <span id="closeCustomiseModal" class="close">&times;</span>
+      <h2>Select a Theme</h2>
+      <button onclick="applyTheme('spooky')" class="btn">Spooky Theme</button>
+      <button onclick="applyTheme('chill')" class="btn">Chill Theme</button>
+      <button onclick="applyTheme('cozy')" class="btn">Cozy Theme</button>
+      <button onclick="applyTheme('hacker')" class="btn">Hacker Theme</button>
+      <button onclick="applyTheme('original')" class="btn">Original Theme</button>
+    </div>
+  </div>
+
+  <!-- App Download Modal -->
+  <div id="appDownloadModal" class="modal">
+    <div class="modal-content">
+      <span id="closeAppDownloadModal" class="close">&times;</span>
+      <h2>Download the App</h2>
+      <button id="downloadAppleBtn" class="btn">Apple</button>
+      <button id="downloadAndroidBtn" class="btn">Android</button>
     </div>
   </div>
 
