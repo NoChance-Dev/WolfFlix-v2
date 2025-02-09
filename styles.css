@@ -453,6 +453,27 @@ footer {
 }
 
 .logo-container img {
-  max-height: 120px; /* Adjust as needed */
   width: auto;
+  max-height: 120px; /* Default size for larger screens */
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+  .logo-container img {
+    max-height: 50px;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .logo-container img {
+    max-height: 80px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1025px) {
+  .logo-container img {
+    max-height: 120px;
+  }
 }
