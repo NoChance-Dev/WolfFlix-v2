@@ -246,72 +246,83 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // --- Apply custom theme and persist selection ---
-  window.applyTheme = function(theme) {
-    let themeColors = {};
-    if (theme === 'spooky') {
-      themeColors = {
-        '--bg-color': 'black',
-        '--text-color': 'orange',
-        '--header-bg': 'black',
-        '--header-text': 'orange',
-        '--button-bg': 'linear-gradient(45deg, black, orange)',
-        '--button-hover-bg': 'orange',
-        '--modal-bg': '#000',
-        '--modal-text': 'orange'
-      };
-    } else if (theme === 'chill') {
-      themeColors = {
-        '--bg-color': '#AEDFF7',
-        '--text-color': '#003366',
-        '--header-bg': '#AEDFF7',
-        '--header-text': '#003366',
-        '--button-bg': 'linear-gradient(45deg, #AEDFF7, #003366)',
-        '--button-hover-bg': '#003366',
-        '--modal-bg': '#AEDFF7',
-        '--modal-text': '#003366'
-      };
-    } else if (theme === 'cozy') {
-      themeColors = {
-        '--bg-color': '#FFF8E7',
-        '--text-color': '#5C4033',
-        '--header-bg': '#FFF8E7',
-        '--header-text': '#5C4033',
-        '--button-bg': 'linear-gradient(45deg, #FFF8E7, #5C4033)',
-        '--button-hover-bg': '#5C4033',
-        '--modal-bg': '#FFF8E7',
-        '--modal-text': '#5C4033'
-      };
-    } else if (theme === 'hacker') {
-      themeColors = {
-        '--bg-color': 'black',
-        '--text-color': 'lime',
-        '--header-bg': 'black',
-        '--header-text': 'lime',
-        '--button-bg': 'linear-gradient(45deg, black, lime)',
-        '--button-hover-bg': 'lime',
-        '--modal-bg': 'black',
-        '--modal-text': 'lime'
-      };
-    } else if (theme === 'original') {
-      themeColors = {
-        '--bg-color': '#141414',
-        '--text-color': '#ffffff',
-        '--header-bg': 'linear-gradient(90deg, #141414, #222222)',
-        '--header-text': '#8e44ad',
-        '--button-bg': 'linear-gradient(45deg, #8e44ad, #a569bd)',
-        '--button-hover-bg': '#a569bd',
-        '--modal-bg': '#222',
-        '--modal-text': '#fff'
-      };
-    }
-    for (const prop in themeColors) {
-      document.documentElement.style.setProperty(prop, themeColors[prop]);
-    }
-    document.getElementById('customiseModal').style.display = 'none';
+window.applyTheme = function(theme) {
+  let themeColors = {};
+  let logoSrc = '';
 
-    // Save the selected theme so it persists across page refreshes.
-    localStorage.setItem("selectedTheme", theme);
-  };
+  if (theme === 'spooky') {
+    themeColors = {
+      '--bg-color': 'black',
+      '--text-color': 'orange',
+      '--header-bg': 'black',
+      '--header-text': 'orange',
+      '--button-bg': 'linear-gradient(45deg, black, orange)',
+      '--button-hover-bg': 'orange',
+      '--modal-bg': '#000',
+      '--modal-text': 'orange'
+    };
+    logoSrc = 'logo-spooky.png'; // Replace with your spooky logo image URL
+  } else if (theme === 'chill') {
+    themeColors = {
+      '--bg-color': '#AEDFF7',
+      '--text-color': '#003366',
+      '--header-bg': '#AEDFF7',
+      '--header-text': '#003366',
+      '--button-bg': 'linear-gradient(45deg, #AEDFF7, #003366)',
+      '--button-hover-bg': '#003366',
+      '--modal-bg': '#AEDFF7',
+      '--modal-text': '#003366'
+    };
+    logoSrc = 'logo-chill.png'; // Replace with your chill logo image URL
+  } else if (theme === 'cozy') {
+    themeColors = {
+      '--bg-color': '#FFF8E7',
+      '--text-color': '#5C4033',
+      '--header-bg': '#FFF8E7',
+      '--header-text': '#5C4033',
+      '--button-bg': 'linear-gradient(45deg, #FFF8E7, #5C4033)',
+      '--button-hover-bg': '#5C4033',
+      '--modal-bg': '#FFF8E7',
+      '--modal-text': '#5C4033'
+    };
+    logoSrc = 'logo-cozy.png'; // Replace with your cozy logo image URL
+  } else if (theme === 'hacker') {
+    themeColors = {
+      '--bg-color': 'black',
+      '--text-color': 'lime',
+      '--header-bg': 'black',
+      '--header-text': 'lime',
+      '--button-bg': 'linear-gradient(45deg, black, lime)',
+      '--button-hover-bg': 'lime',
+      '--modal-bg': 'black',
+      '--modal-text': 'lime'
+    };
+    logoSrc = 'logo-hacker.png'; // Replace with your hacker logo image URL
+  } else if (theme === 'original') {
+    themeColors = {
+      '--bg-color': '#141414',
+      '--text-color': '#ffffff',
+      '--header-bg': 'linear-gradient(90deg, #141414, #222222)',
+      '--header-text': '#8e44ad',
+      '--button-bg': 'linear-gradient(45deg, #8e44ad, #a569bd)',
+      '--button-hover-bg': '#a569bd',
+      '--modal-bg': '#222',
+      '--modal-text': '#fff'
+    };
+    logoSrc = 'logo-original.png'; // Replace with your original logo image URL
+  }
+
+  for (const prop in themeColors) {
+    document.documentElement.style.setProperty(prop, themeColors[prop]);
+  }
+  document.getElementById('customiseModal').style.display = 'none';
+
+  // Update the logo image based on the theme.
+  document.getElementById('logoImg').src = logoSrc;
+
+  // Save the selected theme so it persists across page refreshes.
+  localStorage.setItem("selectedTheme", theme);
+};
 
   // --- Check local storage for a previously selected theme and apply it ---
   const storedTheme = localStorage.getItem("selectedTheme");
